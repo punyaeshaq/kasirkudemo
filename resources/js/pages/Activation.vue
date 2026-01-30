@@ -201,7 +201,7 @@ const handleActivation = async () => {
         statusReason.value = ''; // Clear status reason on success
         
         setTimeout(() => {
-            router.replace({ name: 'login' });
+            router.replace({ name: 'setup' });
         }, 1500);
     } catch (e) {
         error.value = e.response?.data?.message || 'Kode aktivasi tidak valid';
@@ -224,7 +224,13 @@ onMounted(async () => {
     // Check if already activated
     const isActivated = await activationStore.checkActivation(machineId.value);
     if (isActivated) {
-        router.replace({ name: 'login' });
+        // Check if setup is completed
+        const isSetupCompleted = localStorage.getItem('kasirku_setup_completed') === 'true';
+        if (isSetupCompleted) {
+            router.replace({ name: 'login' });
+        } else {
+            router.replace({ name: 'setup' });
+        }
     }
 });
 </script>

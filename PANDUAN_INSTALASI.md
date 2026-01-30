@@ -1,133 +1,103 @@
-# Panduan Instalasi dan Menjalankan Aplikasi KasirKu
+# Panduan Instalasi KasirKu
 
-Panduan ini menjelaskan cara mengunduh (clone), menginstal, dan menjalankan aplikasi KasirKu dari repository GitHub hingga siap digunakan.
+Panduan ini berisi langkah-langkah untuk menjalankan aplikasi KasirKu dari repository GitHub di lingkungan lokal Anda.
 
 ## 1. Prasyarat Sistem
 
-Sebelum memulai, pastikan komputer Anda telah terinstal software berikut:
+Pastikan komputer Anda memiliki:
+*   **XAMPP** (PHP 8.1+ & MySQL)
+*   **Composer** (PHP Dependency Manager)
+*   **Node.js** (v18 ke atas) + NPM
+*   **Git**
 
-*   **XAMPP** (untuk PHP dan MySQL/MariaDB). Pastikan versi PHP adalah **8.1** atau lebih baru.
-*   **Composer** (Dependency manager untuk PHP). [Download Composer](https://getcomposer.org/download/)
-*   **Node.js** (Runtime untuk JavaScript, dibutuhkan untuk Vite dan Electron). Disarankan versi LTS (18.x atau 20.x). [Download Node.js](https://nodejs.org/)
-*   **Git** (Untuk mengunduh source code). [Download Git](https://git-scm.com/)
+## 2. Instalasi Project
 
-## 2. Mengunduh Source Code (Clone)
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/punyaeshaq/kasirku.git
+    cd kasirku
+    ```
 
-Buka terminal (Command Prompt, PowerShell, atau Git Bash) dan jalankan perintah berikut untuk mengunduh source code dari GitHub:
+2.  **Install Dependencies**
+    ```bash
+    # Install dependency PHP
+    composer install
 
-```bash
-git clone https://github.com/punyaeshaq/kasirku.git
-cd kasirku
-```
+    # Install dependency JavaScript
+    npm install
+    ```
 
-## 3. Instalasi Backend (Laravel)
+## 3. Konfigurasi Environment
 
-Jalankan perintah berikut di dalam folder `kasirku` untuk menginstal dependency PHP:
+1.  Salin file contoh konfigurasi:
+    ```bash
+    cp .env.example .env
+    ```
+    *(Di Windows CMD: `copy .env.example .env`)*
 
-```bash
-composer install
-```
+2.  Generate Key Aplikasi:
+    ```bash
+    php artisan key:generate
+    ```
 
-## 4. Konfigurasi Environment
+3.  Link Storage (untuk gambar):
+    ```bash
+    php artisan storage:link
+    ```
 
-Duplikasi file `.env.example` menjadi `.env`:
+## 4. Setup Database
 
-```bash
-copy .env.example .env
-```
+1.  Nyalakan **Apache** dan **MySQL** di XAMPP.
+2.  Buka [phpMyAdmin](http://localhost/phpmyadmin).
+3.  Buat database baru dengan nama `kasirku` (atau sesuaikan dengan kebutuhan).
+4.  Edit file `.env` dan sesuaikan koneksi database Anda:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=kasirku
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
 
-Generate application key:
+5.  Jalankan migrasi database:
+    ```bash
+    php artisan migrate
+    ```
 
-```bash
-php artisan key:generate
-```
+## 5. Menjalankan Aplikasi
 
-## 5. Konfigurasi Database
+Anda memiliki dua pilihan untuk menjalankan aplikasi:
 
-1.  Pastikan modul **Apache** dan **MySQL** di XAMPP sudah berjalan (klik tombol **Start**).
-2.  Buka browser dan akses `http://localhost/phpmyadmin`.
-3.  Buat database baru dengan nama `kasirku` (atau nama lain yang Anda inginkan).
-4.  Buka file `.env` dengan text editor (Notepad, VS Code, dll).
-5.  Cari bagian konfigurasi database dan sesuaikan (biasanya default XAMPP user `root` tanpa password):
+### A. Mode Web (Browser)
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=kasirku
-DB_USERNAME=root
-DB_PASSWORD=
-```
+Buka dua terminal terpisah:
 
-## 6. Migrasi Database
-
-Jalankan perintah ini untuk membuat tabel-tabel di database:
-
-```bash
-php artisan migrate
-```
-
-*(Opsional) Jika ingin mengisi data dummy awal:*
-```bash
-php artisan migrate --seed
-```
-
-## 7. Instalasi Frontend & Electron
-
-Instal dependency JavaScript:
-
-```bash
-npm install
-```
-
-## 8. Menjalankan Aplikasi
-
-Aplikasi ini bisa dijalankan dalam dua mode: **Mode Web** (di browser) atau **Mode Desktop** (aplikasi Electron).
-
-### Cara 1: Mode Web (Browser)
-
-Anda perlu menjalankan dua terminal secara bersamaan.
-
-**Terminal 1 (Menjalankan Server Laravel):**
+**Terminal 1:**
 ```bash
 php artisan serve
 ```
-*Server akan berjalan di http://127.0.0.1:8000*
 
-**Terminal 2 (Menjalankan Vite Hot Reload):**
+**Terminal 2:**
 ```bash
 npm run dev
 ```
 
-Buka browser dan akses `http://127.0.0.1:8000`.
+Akses aplikasi di: `http://localhost:8000`
 
-### Cara 2: Mode Desktop (Electron)
+### B. Mode Desktop (Electron)
 
-Untuk mode pengembangan (Development), pastikan **Terminal 1 (php artisan serve)** sudah berjalan. Lalu jalankan:
+Untuk menjalankan versi desktop dalam mode development:
 
 ```bash
+# Pastikan 'php artisan serve' di terminal lain sudah berjalan
 npm run electron:dev
 ```
-Aplikasi desktop akan terbuka.
 
-### Cara 3: Build Aplikasi Desktop (.exe)
-
-Untuk membuat file instalasi `.exe` (Windows):
-
-1.  Pastikan `AppLayout.vue` atau konfigurasi URL di `electron.cjs` sudah mengarah ke production URL atau localhost yang sesuai jika ingin offline-first (tergantung implementasi).
-2.  Jalankan perintah build:
-
+Untuk membuat file `.exe` (Build):
 ```bash
 npm run electron:build
 ```
 
-Hasil build (file `.exe`) akan muncul di folder `dist-electron` atau `dist-electron-new`.
-
-## 9. Troubleshooting Umum
-
-*   **Error "Vite manifest not found":** Pastikan Anda menjalankan `npm run dev` (untuk development) atau `npm run build` (untuk production).
-*   **Database Error:** Pastikan XAMPP MySQL berjalan dan konfigurasi `.env` sudah benar.
-*   **Tampilan Berantakan:** Pastikan `npm run dev` berjalan jika dalam mode development.
-
 ---
-**Selesai!** Aplikasi KasirKu siap digunakan.
+**Catatan:** Aplikasi ini membutuhkan konfigurasi lanjutan dari Administrator untuk penggunaan penuh. Silakan hubungi pengelola repositori untuk informasi lebih lanjut.

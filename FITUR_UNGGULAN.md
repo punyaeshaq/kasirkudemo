@@ -6,9 +6,11 @@ Mengapa bisnis Anda membutuhkan KasirKu? Berikut adalah fitur unggulan kami:
 
 ## 🚀 1. Point of Sale (POS) Super Cepat
 Lupakan antrean panjang. Antarmuka kasir kami didesain **intuitif dan responsif**.
--   **Scan Barcode**: Dukungan penuh untuk scanner barcode demi kecepatan transaksi.
--   **Pencarian Cepat**: Cari produk dalam hitungan detik.
+-   **Shortcut Keyboard**: Operasikan kasir tanpa mouse! Gunakan **F1** (Cari), **F2** (Bayar), **F3** (Hapus), **F4** (Scan), dan **Esc**.
+-   **Scan Barcode**: Dukungan penuh untuk scanner barcode fisik maupun kamera (webcam).
+-   **Pencarian Cepat**: Cari produk dalam hitungan detik berdasarkan nama atau kode.
 -   **Keranjang Pintar**: Edit jumlah, hapus item, dan hitung kembalian otomatis.
+-   **Pembayaran Fleksibel**: Dukung Tunai, Transfer, dan QRIS.
 
 ## 💰 2. Manajemen Hutang & Piutang (KASBON TERINTEGRASI)
 Fitur yang jarang dimiliki aplikasi lain! Kelola hutang pelanggan dengan rapi dan profesional.
@@ -26,21 +28,48 @@ Jangan berbisnis dengan menebak-nebak. Dapatkan data akurat untuk keputusan tepa
 Gunakan sesuai kenyamanan Anda.
 -   **Mode Web**: Akses dari browser di mana saja dalam jaringan lokal.
 -   **Aplikasi Desktop (.exe)**: Install di Windows seperti aplikasi native, lebih stabil dan elegan.
--   **Portable**: Mudah dipindahkan antar komputer tanpa ribet (lihat *Panduan Migrasi* kami).
+-   **Portable**: Database dan aset gambar aman saat aplikasi dipindahkan antar komputer.
 
 ## 🔐 5. Keamanan & Akses Pengguna
+-   **Setup Wizard**: Panduan instalasi dan aktivasi lisensi yang mudah saat pertama kali digunakan.
 -   **Multi-Role**: Bedakan akses antara **Admin** (pemilik) dan **Kasir**.
 -   **QR Code Login**: Login super cepat bagi karyawan tanpa perlu ketik password, cukup scan kode QR unik mereka!
+-   **Auto Logout**: Keamanan ekstra, otomatis logout saat aplikasi ditutup.
 
 ## 📦 6. Manajemen Stok Lengkap
 -   **Kategori Produk**: Kelompokkan barang agar mudah ditemukan.
 -   **Stok Opname**: Pantau jumlah barang masuk dan keluar.
--   **Diskon & Promo**: Atur diskon manual atau otomatis untuk menarik lebih banyak pembeli.
+-   **Diskon & Promo**: Atur diskon manual atau otomatis (persen/nominal) dan syarat minimal belanja.
 
 ## 🛠️ 7. Utilitas Pendukung
--   **Backup Database**: Amankan data bisnis Anda dengan satu klik.
--   **Pengaturan Toko**: Sesuaikan nama, alamat, dan logo struk sesuai brand Anda.
--   **Cetak Struk**: Kompatibel dengan printer thermal standar.
+-   **Backup & Restore**: Amankan database Anda dan pulihkan kapan saja dengan mudah.
+-   **Pengaturan Toko**: Sesuaikan nama, alamat, logo struk, dan akun bank.
+-   **Cetak Struk**: Kompatibel dengan printer thermal (Bluetooth/USB) dengan format profesional.
+-   **Cek Struk Online**: Pelanggan dapat memindai QR di struk untuk melihat detail belanja online.
+
+---
+
+## 💻 Teknologi yang Digunakan
+
+KasirKu dibangun dengan stack teknologi modern untuk menjamin performa, keamanan, dan kemudahan pengembangan:
+
+### Backend (Server)
+-   **Laravel 10**: Framework PHP terpopuler yang kuat dan aman.
+-   **PHP 8.1+**: Bahasa pemrograman server-side yang cepat.
+-   **MySQL / MariaDB**: Database relasional yang handal untuk jutaan transaksi.
+-   **Spatie Permission**: Manajemen hak akses pengguna yang granular.
+
+### Frontend (User Interface)
+-   **Vue.js 3**: Framework JavaScript reaktif untuk antarmuka yang mulus (SPA).
+-   **Tailwind CSS**: Framework CSS utility-first untuk desain modern dan responsif.
+-   **Pinia**: Manajemen state global yang ringan dan cepat.
+-   **Chart.js**: Visualisasi data grafik yang interaktif.
+-   **Html5-Qrcode**: Library untuk scanning barcode via kamera webcam.
+
+### Desktop & Tools
+-   **Electron**: Membungkus aplikasi web menjadi aplikasi desktop native (.exe).
+-   **Vite**: Build tool generasi terbaru untuk loading super cepat.
+-   **Electron Builder**: Tool untuk memaketkan aplikasi menjadi file installer/portable.
 
 ---
 

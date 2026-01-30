@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\DebtController;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\ActivationController;
+use App\Http\Controllers\Api\SetupController;
 
 // Public routes
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -26,6 +27,14 @@ Route::get('/print-receipt/{id}', [TransactionController::class, 'showForPrint']
 // Activation routes (public - must be accessible before login)
 Route::get('/activation/status', [ActivationController::class, 'status']);
 Route::post('/activation/activate', [ActivationController::class, 'activate']);
+
+// Setup routes (public - must be accessible before login)
+Route::prefix('setup')->group(function () {
+    Route::get('/status', [SetupController::class, 'status']);
+    Route::post('/create-store', [SetupController::class, 'createStore']);
+    Route::post('/restore', [SetupController::class, 'restoreDatabase']);
+    Route::post('/complete', [SetupController::class, 'markComplete']);
+});
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'activation'])->group(function () {

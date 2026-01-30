@@ -11,7 +11,7 @@
                             v-model="search"
                             type="text" 
                             class="input w-full pl-10" 
-                            placeholder="Cari produk atau scan barcode"
+                            placeholder="Cari produk (F1) atau scan barcode"
                             @keyup.enter="searchProduct"
                             ref="searchInput"
                         />
@@ -22,7 +22,7 @@
                         title="Scan Barcode dengan Kamera"
                     >
                         <CameraIcon class="w-5 h-5" />
-                        <span class="hidden sm:inline">Scan</span>
+                        <span class="hidden sm:inline">Scan (F4)</span>
                     </button>
                 </div>
                 
@@ -90,7 +90,7 @@
                         @click="clearCart"
                         class="text-sm text-red-500 hover:text-red-600"
                     >
-                        Hapus Semua
+                        Hapus Semua (F3)
                     </button>
                 </div>
             </div>
@@ -243,7 +243,7 @@
                     :disabled="!cartStore.items.length || processing"
                 >
                     <span v-if="processing" class="spinner mr-2"></span>
-                    {{ processing ? 'Memproses...' : 'Bayar Sekarang' }}
+                    {{ processing ? 'Memproses...' : 'Bayar Sekarang (F2)' }}
                 </button>
             </div>
         </div>
@@ -304,10 +304,12 @@
                         </div>
                         
                         <input 
+                            ref="paymentInput"
                             v-model="cashReceived"
                             type="number" 
                             class="input text-center text-xl mb-4" 
                             placeholder="Atau ketik jumlah"
+                            @keyup.enter="confirmPayment"
                         />
                         <p v-if="change > 0" class="text-lg text-emerald-500 font-bold mb-4">
                             Kembalian: {{ formatCurrency(change) }}
@@ -455,7 +457,7 @@
 </style>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRouter } from 'vue-router'; // Added imports
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
@@ -482,6 +484,7 @@ const search = ref('');
 const selectedCategory = ref(null);
 const selectedCustomerId = ref('');
 const searchInput = ref(null);
+const paymentInput = ref(null);
 const processing = ref(false);
 const showPaymentModal = ref(false);
 const showSuccessModal = ref(false);
@@ -847,6 +850,10 @@ const checkout = () => {
     cashReceived.value = '';
     
     showPaymentModal.value = true;
+    
+    nextTick(() => {
+        paymentInput.value?.focus();
+    });
 };
 
 const printReceipt = () => {
@@ -960,10 +967,74 @@ onMounted(async () => {
     }
     
     searchInput.value?.focus();
+    
+    // Add keyboard shortcuts listener
+    window.addEventListener('keydown', handleGlobalKeydown);
 });
+
+// Keyboard Shortcuts Handler
+const handleGlobalKeydown = (e) => {
+    // F1: Focus Search
+    if (e.key === 'F1') {
+        e.preventDefault();
+        searchInput.value?.focus();
+        return;
+    }
+    
+    // F2: Checkout / Confirm Payment
+    if (e.key === 'F2') {
+        e.preventDefault();
+        if (showPaymentModal.value) {
+            // If in payment modal, F2 acts as Confirm
+            // Check validation logic similar to button binding
+            const canConfirm = cartStore.paymentMethod === 'cash' 
+                ? (cashReceived.value >= cartStore.total || (cashReceived.value > 0 && selectedCustomerId.value))
+                : (cartStore.paymentMethod === 'qris' || bankAccounts.value.length > 0);
+                
+            if (canConfirm && !processing.value) {
+                confirmPayment();
+            }
+        } else if (cartStore.items.length > 0) {
+            checkout();
+        }
+        return;
+    }
+    
+    // F3: Clear Cart
+    if (e.key === 'F3') {
+        e.preventDefault();
+        if (cartStore.items.length > 0 && !showPaymentModal.value && !showScannerModal.value) {
+            if (confirm('Yakin ingin mengosongkan keranjang?')) {
+                clearCart();
+            }
+        }
+        return;
+    }
+    
+    // F4: Scanner
+    if (e.key === 'F4') {
+        e.preventDefault();
+        if (!showScannerModal.value && !showPaymentModal.value) {
+            openBarcodeScanner();
+        }
+        return;
+    }
+    
+    // Escape: Close Modals
+    if (e.key === 'Escape') {
+        if (showScannerModal.value) {
+            closeBarcodeScanner();
+        } else if (showPaymentModal.value) {
+            showPaymentModal.value = false;
+        } else if (showSuccessModal.value) {
+            newTransaction();
+        }
+    }
+};
 
 // Cleanup scanner on unmount
 onBeforeUnmount(() => {
     closeBarcodeScanner();
+    window.removeEventListener('keydown', handleGlobalKeydown);
 });
 </script>

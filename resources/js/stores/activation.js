@@ -162,8 +162,40 @@ export const useActivationStore = defineStore('activation', () => {
     const resetActivation = () => {
         localStorage.removeItem('kasirku_activated');
         localStorage.removeItem('kasirku_expired_at');
+        localStorage.removeItem('kasirku_setup_completed');
         isActivated.value = false;
         expiredAt.value = null;
+    };
+
+    /**
+     * Check if setup is completed
+     */
+    const checkSetupStatus = async () => {
+        // First check localStorage
+        const localSetup = localStorage.getItem('kasirku_setup_completed');
+        if (localSetup === 'true') {
+            return true;
+        }
+
+        // Verify with server
+        try {
+            const response = await axios.get('/setup/status');
+            if (response.data.setup_completed) {
+                localStorage.setItem('kasirku_setup_completed', 'true');
+                return true;
+            }
+        } catch (e) {
+            console.error('Failed to check setup status:', e);
+        }
+
+        return false;
+    };
+
+    /**
+     * Mark setup as complete
+     */
+    const markSetupComplete = () => {
+        localStorage.setItem('kasirku_setup_completed', 'true');
     };
 
     /**
@@ -325,6 +357,8 @@ export const useActivationStore = defineStore('activation', () => {
         activate,
         isAppActivated,
         resetActivation,
+        checkSetupStatus,
+        markSetupComplete,
         startPeriodicCheck,
         stopPeriodicCheck,
         setupInterceptors

@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 // Pages
 import Login from '@/pages/auth/Login.vue';
 import Activation from '@/pages/Activation.vue';
+import Setup from '@/pages/Setup.vue';
 import Dashboard from '@/pages/Dashboard.vue';
 import Products from '@/pages/products/Index.vue';
 import ProductForm from '@/pages/products/Form.vue';
@@ -29,6 +30,12 @@ const routes = [
         name: 'activation',
         component: Activation,
         meta: { public: true }
+    },
+    {
+        path: '/setup',
+        name: 'setup',
+        component: Setup,
+        meta: { public: true, requiresActivation: true }
     },
     {
         path: '/welcome',
@@ -120,6 +127,7 @@ router.beforeEach(async (to, from, next) => {
     // Check activation status for non-public routes
     const isActivated = localStorage.getItem('kasirku_activated') === 'true';
     const expiredAt = localStorage.getItem('kasirku_expired_at');
+    const isSetupCompleted = localStorage.getItem('kasirku_setup_completed') === 'true';
 
     // Check if activation is required and not activated or expired
     if (!isActivated || (expiredAt && new Date().toISOString().split('T')[0] > expiredAt)) {
@@ -131,8 +139,17 @@ router.beforeEach(async (to, from, next) => {
             return;
         }
 
-        if (to.name !== 'activation') {
+        if (to.name !== 'activation' && to.name !== 'setup') {
             next({ name: 'activation' });
+            return;
+        }
+    }
+
+    // Check if setup is completed (only for non-public routes except setup itself)
+    if (isActivated && !isSetupCompleted && to.name !== 'setup' && to.name !== 'activation') {
+        // If trying to access login or any other page without completing setup
+        if (to.meta.guest || to.meta.requiresAuth) {
+            next({ name: 'setup' });
             return;
         }
     }
