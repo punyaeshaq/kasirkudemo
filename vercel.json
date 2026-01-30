@@ -9,8 +9,32 @@
     },
     "routes": [
         {
+            "src": "/build/assets/(.*)",
+            "dest": "/build/assets/$1"
+        },
+        {
             "src": "/build/(.*)",
-            "dest": "/public/build/$1"
+            "dest": "/build/$1"
+        },
+        {
+            "src": "/icons/(.*)",
+            "dest": "/icons/$1"
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/images/$1"
+        },
+        {
+            "src": "/favicon\\.(ico|png)",
+            "dest": "/favicon.$1"
+        },
+        {
+            "src": "/manifest\\.json",
+            "dest": "/manifest.json"
+        },
+        {
+            "src": "/robots\\.txt",
+            "dest": "/robots.txt"
         },
         {
             "src": "/(.*)",
