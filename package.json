@@ -1,0 +1,76 @@
+{
+    "name": "kasirku",
+    "version": "1.0.0",
+    "description": "KasirKu - Point of Sale Modern",
+    "main": "electron.cjs",
+    "author": "KasirKu Team",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "electron": "electron .",
+        "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:8000 && electron .\"",
+        "electron:build": "npm run build && electron-builder",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
+    },
+    "build": {
+        "appId": "com.kasirku.pos",
+        "productName": "KasirKu",
+        "copyright": "Copyright © 2026 KasirKu",
+        "asar": false,
+        "directories": {
+            "output": "dist-electron-new",
+            "buildResources": "build"
+        },
+        "files": [
+            "electron.cjs",
+            "package.json",
+            "public/icons/**/*"
+        ],
+        "extraResources": [
+            {
+                "from": ".",
+                "to": "app",
+                "filter": [
+                    "hosting.json"
+                ]
+            }
+        ],
+        "win": {
+            "target": [
+                {
+                    "target": "dir",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        }
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.23",
+        "axios": "^1.13.3",
+        "concurrently": "^9.2.1",
+        "electron": "^40.0.0",
+        "electron-builder": "^26.4.0",
+        "jimp": "^1.6.0",
+        "laravel-vite-plugin": "^1.0.0",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.1",
+        "vite": "^5.0.0",
+        "wait-on": "^9.0.3"
+    },
+    "dependencies": {
+        "@heroicons/vue": "^2.2.0",
+        "@vitejs/plugin-vue": "^6.0.3",
+        "chart.js": "^4.5.1",
+        "date-fns": "^4.1.0",
+        "html5-qrcode": "^2.3.8",
+        "pinia": "^3.0.4",
+        "qrcode": "^1.5.4",
+        "vue": "^3.5.27",
+        "vue-router": "^4.6.4"
+    }
+}
