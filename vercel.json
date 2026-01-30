@@ -54,6 +54,13 @@
         "VIEW_COMPILED_PATH": "/tmp",
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie"
+        "SESSION_DRIVER": "cookie",
+        "DB_CONNECTION": "pgsql",
+        "DB_HOST": "aws-1-ap-northeast-1.pooler.supabase.com",
+        "DB_PORT": "6543",
+        "DB_DATABASE": "postgres",
+        "DB_USERNAME": "postgres.itvuoknqvhjrgopdozpa",
+        "DB_PASSWORD": "rikikurni123",
+        "ACTIVATION_SALT": "KasirKu-Secret-Salt-2026"
     }
 }
