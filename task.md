@@ -1,0 +1,3 @@
+- [ ] Guide user to check Vercel Function Logs for specific PHP error <!-- id: 0 -->
+- [ ] Verify Vercel Environment Variables (APP_KEY, Database Config) <!-- id: 1 -->
+- [ ] Check for common Vercel/Laravel issues (storage permissions, cache paths) <!-- id: 2 -->
