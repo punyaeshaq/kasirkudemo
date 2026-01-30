@@ -3,7 +3,9 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.withCredentials = true;
-window.axios.defaults.baseURL = '/kasirku/public/api';
+// Dynamic API base URL: production (Vercel) vs local (XAMPP)
+const isVercel = window.location.hostname.includes('vercel.app');
+window.axios.defaults.baseURL = isVercel ? '/api' : '/kasirku/public/api';
 window.axios.defaults.timeout = 10000; // 10 seconds timeout
 
 // Add auth token to requests (gunakan sessionStorage untuk auto-logout saat tab/browser ditutup)
