@@ -20,3 +20,6 @@ yarn-error.log
 dist-electron/
 dist-electron-new/
 build_output.txt
+
+# Activation tools - contain secret salt, DO NOT COMMIT!
+activation-tools/

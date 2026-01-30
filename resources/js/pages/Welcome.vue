@@ -18,7 +18,7 @@
                 <div class="absolute bottom-[-10%] right-[-10%] w-[50vh] h-[50vh] bg-violet-600/30 rounded-full blur-[100px] animate-blob animation-delay-3000"></div>
                 
                 <!-- Grid Pattern Overlay -->
-                <div class="absolute inset-0 bg-[url('/images/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10"></div>
+                <div class="absolute inset-0 bg-[url('/kasirku/public/images/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10"></div>
             </div>
             
             <!-- Content -->

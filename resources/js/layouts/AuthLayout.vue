@@ -16,7 +16,7 @@
             <div class="absolute bottom-[-10%] left-[10%] w-[60vh] h-[60vh] bg-blue-600/20 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
             
             <!-- Grid Pattern Overlay -->
-            <div class="absolute inset-0 bg-[url('/images/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-5"></div>
+            <div class="absolute inset-0 bg-[url('/kasirku/public/images/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-5"></div>
         </div>
 
         <!-- Main Content -->
@@ -71,7 +71,7 @@
                             <div class="relative mb-6 group">
                                 <div class="absolute inset-0 bg-indigo-500/20 rounded-2xl blur-xl group-hover:bg-indigo-500/30 transition-all duration-500"></div>
                                 <img 
-                                    :src="settings.store_logo_url || '/kasirku/public/icons/kasirku-logo.png'" 
+                                    src="/kasirku/public/icons/kasirku-logo.png" 
                                     alt="Logo" 
                                     class="relative h-20 sm:h-24 w-auto object-contain bg-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-white/10 group-hover:scale-105 transition-transform duration-500" 
                                 />

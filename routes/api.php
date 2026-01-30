@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DebtController;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\BackupController;
+use App\Http\Controllers\Api\ActivationController;
 
 // Public routes
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -22,11 +23,13 @@ Route::post('/auth/logout-beacon', [AuthController::class, 'logoutWithBeacon']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/print-receipt/{id}', [TransactionController::class, 'showForPrint']); // Public access for printing receipt
 
+// Activation routes (public - must be accessible before login)
+Route::get('/activation/status', [ActivationController::class, 'status']);
+Route::post('/activation/activate', [ActivationController::class, 'activate']);
+
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    // Auth
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
+Route::middleware(['auth:sanctum', 'activation'])->group(function () {
+    // Auth routes moved to exempted group below
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -79,4 +82,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/download/{filename}', [BackupController::class, 'download']);
         Route::delete('/{filename}', [BackupController::class, 'destroy']);
     });
+});
+
+// Protected routes exempted from Activation Check (so Super Admin can manage licenses)
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Auth (Allow identity check and logout even if license is invalid)
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Activation Management (Admin only)
+    Route::get('/activations', [ActivationController::class, 'index']);
+    Route::post('/activations/revoke', [ActivationController::class, 'revoke']);
 });

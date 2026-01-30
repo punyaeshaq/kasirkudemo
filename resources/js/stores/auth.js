@@ -8,11 +8,20 @@ export const useAuthStore = defineStore('auth', () => {
     const permissions = ref(JSON.parse(sessionStorage.getItem('permissions') || '[]'));
 
     const isAuthenticated = computed(() => !!token.value);
+    const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
     const isAdmin = computed(() => user.value?.role === 'admin');
     const isKasir = computed(() => user.value?.role === 'kasir');
 
     const hasPermission = (permission) => {
-        if (isAdmin.value) return true;
+        // Super Admin has all permissions
+        if (isSuperAdmin.value) return true;
+
+        // Admin has all except superadmin-only permissions
+        if (isAdmin.value) {
+            const superadminOnly = ['users', 'activations'];
+            return !superadminOnly.includes(permission);
+        }
+
         return permissions.value.includes(permission);
     };
 
@@ -102,6 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
         token,
         permissions,
         isAuthenticated,
+        isSuperAdmin,
         isAdmin,
         isKasir,
         hasPermission,

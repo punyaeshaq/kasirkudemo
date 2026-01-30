@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    // Available permissions
+    // Available permissions for kasir (superadmin-only features excluded)
     public const AVAILABLE_PERMISSIONS = [
         'dashboard' => 'Dashboard',
         'pos' => 'Kasir (POS)',
@@ -23,7 +23,6 @@ class User extends Authenticatable
         'bank_accounts' => 'Rekening & E-Wallet',
         'discounts' => 'Manajemen Diskon',
         'reports' => 'Laporan',
-        'users' => 'Manajemen Pengguna',
         'backup' => 'Backup Database',
         'settings' => 'Pengaturan',
     ];
@@ -55,6 +54,11 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -70,9 +74,16 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
-        // Admin has all permissions
-        if ($this->isAdmin()) {
+        // Super Admin has all permissions
+        if ($this->isSuperAdmin()) {
             return true;
+        }
+
+        // Admin has all permissions except superadmin-only ones
+        if ($this->isAdmin()) {
+            // These are superadmin-only permissions
+            $superadminOnly = ['users', 'activations'];
+            return !in_array($permission, $superadminOnly);
         }
 
         // If no permissions set, deny access
@@ -88,8 +99,16 @@ class User extends Authenticatable
      */
     public function getActivePermissions(): array
     {
-        if ($this->isAdmin()) {
+        if ($this->isSuperAdmin()) {
             return array_keys(self::AVAILABLE_PERMISSIONS);
+        }
+
+        if ($this->isAdmin()) {
+            // Admin gets all except superadmin-only
+            $superadminOnly = ['users', 'activations'];
+            return array_filter(array_keys(self::AVAILABLE_PERMISSIONS), function ($perm) use ($superadminOnly) {
+                return !in_array($perm, $superadminOnly);
+            });
         }
 
         return $this->permissions ?? [];

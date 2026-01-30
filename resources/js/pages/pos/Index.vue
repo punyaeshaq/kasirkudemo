@@ -6,12 +6,12 @@
             <div class="mb-4 space-y-3">
                 <div class="flex gap-2">
                     <div class="relative flex-1">
-                        <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
+                        <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400 pointer-events-none" />
                         <input 
                             v-model="search"
                             type="text" 
-                            class="input-search" 
-                            placeholder="Cari produk atau scan barcode..."
+                            class="input w-full pl-10" 
+                            placeholder="Cari produk atau scan barcode"
                             @keyup.enter="searchProduct"
                             ref="searchInput"
                         />
@@ -239,7 +239,7 @@
                 
                 <button 
                     @click="checkout"
-                    class="btn-success w-full text-base py-3"
+                    class="btn-primary w-full text-base py-3"
                     :disabled="!cartStore.items.length || processing"
                 >
                     <span v-if="processing" class="spinner mr-2"></span>
@@ -262,7 +262,7 @@
                         </p>
                         <div class="flex gap-2">
                             <button @click="showPaymentModal = false" class="btn-ghost flex-1">Batal</button>
-                            <button @click="confirmPayment" class="btn-success flex-1">Konfirmasi</button>
+                            <button @click="confirmPayment" class="btn-primary flex-1">Konfirmasi</button>
                         </div>
                     </div>
                     
@@ -333,7 +333,7 @@
                             <button @click="showPaymentModal = false" class="btn-ghost flex-1">Batal</button>
                             <button 
                                 @click="confirmPayment" 
-                                class="btn-success flex-1" 
+                                class="btn-primary flex-1" 
                                 :disabled="(cashReceived < cartStore.total && !selectedCustomerId) || cashReceived <= 0"
                             >
                                 {{ cashReceived < cartStore.total ? 'Simpan sebagai Piutang' : 'Selesai' }}
@@ -368,7 +368,7 @@
                         </p>
                         <div class="flex gap-2">
                             <button @click="showPaymentModal = false" class="btn-ghost flex-1">Batal</button>
-                            <button @click="confirmPayment" class="btn-success flex-1" :disabled="!bankAccounts.length">Konfirmasi</button>
+                            <button @click="confirmPayment" class="btn-primary flex-1" :disabled="!bankAccounts.length">Konfirmasi</button>
                         </div>
                     </div>
                 </div>
@@ -926,6 +926,16 @@ onMounted(async () => {
         categories.value = catRes.data.data || catRes.data;
         customers.value = custRes.data.data || custRes.data;
         activeDiscounts.value = discountsRes.data.data;
+
+        // Sync product stock with cart items (Fix: Stock reset bug on navigation)
+        if (cartStore.items.length) {
+            cartStore.items.forEach(cartItem => {
+                const product = products.value.find(p => p.id === cartItem.id);
+                if (product) {
+                    product.stock = Math.max(0, product.stock - cartItem.quantity);
+                }
+            });
+        }
         
         // Update tax rate from settings
         if (settingsRes.data && settingsRes.data.tax_rate !== undefined) {

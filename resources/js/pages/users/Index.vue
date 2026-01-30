@@ -290,7 +290,9 @@ const revokeQrToken = async () => {
 const fetchUsers = async () => {
     try {
         const res = await axios.get('/users');
-        users.value = res.data.data || res.data;
+        // Filter out superadmin from the list - they should not be visible/editable
+        const allUsers = res.data.data || res.data;
+        users.value = allUsers.filter(u => u.role !== 'superadmin');
     } catch (e) {
         users.value = [
             { id: 1, name: 'Admin', email: 'admin@kasirku.com', role: 'admin', permissions: [], is_active: true },

@@ -1,70 +1,80 @@
 <template>
     <div class="space-y-6 animate-fade-in">
         <!-- Loading State -->
-        <div v-if="loading" class="flex items-center justify-center py-12">
-            <div class="spinner"></div>
-            <span class="ml-3 text-dark-500">Memuat data...</span>
+        <div v-if="loading" class="flex items-center justify-center py-20">
+            <div class="spinner w-8 h-8"></div>
+            <span class="ml-3 text-dark-500 font-medium">Memuat data...</span>
         </div>
 
-        <div v-else-if="error" class="p-4 bg-red-100 text-red-700 rounded-lg text-center">
+        <div v-else-if="error" class="p-4 bg-rose-50 dark:bg-rose-900/10 text-rose-700 dark:text-rose-400 rounded-xl border border-rose-100 dark:border-rose-900/20 text-center">
             {{ error }}
         </div>
 
         <template v-else>
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div v-for="stat in stats" :key="stat.label" class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-dark-500 dark:text-dark-400">{{ stat.label }}</p>
-                            <p class="text-2xl font-bold text-dark-900 dark:text-white mt-1">
-                                {{ stat.value }}
-                            </p>
-                            <p :class="['text-xs mt-1', stat.change >= 0 ? 'text-emerald-500' : 'text-red-500']">
-                                {{ stat.change >= 0 ? '+' : '' }}{{ stat.change }}% dari kemarin
-                            </p>
-                        </div>
-                        <div :class="['w-12 h-12 rounded-xl flex items-center justify-center', stat.bgColor]">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Stat Card -->
+                <div v-for="stat in stats" :key="stat.label" class="card p-6 flex flex-col justify-between hover:border-primary-200 dark:hover:border-primary-800 transition-colors duration-200">
+                    <div class="flex items-start justify-between mb-4">
+                        <div :class="['p-3 rounded-xl', stat.bgColor]">
                             <component :is="stat.icon" :class="['w-6 h-6', stat.iconColor]" />
                         </div>
+                        <span :class="['text-xs font-bold px-2.5 py-1 rounded-full', stat.change >= 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400']">
+                            {{ stat.change >= 0 ? '+' : '' }}{{ stat.change }}%
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-dark-900 dark:text-white tracking-tight">
+                            {{ stat.value }}
+                        </p>
+                        <p class="text-sm font-medium text-dark-500 dark:text-dark-400 mt-1">{{ stat.label }}</p>
                     </div>
                 </div>
             </div>
             
             <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Sales Chart -->
-                <div class="card p-5">
-                    <h3 class="text-lg font-semibold text-dark-900 dark:text-white mb-4">Grafik Penjualan (7 Hari)</h3>
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-dark-900 dark:text-white">Grafik Penjualan</h3>
+                        <div class="relative">
+                            <select class="text-xs bg-gray-50 dark:bg-dark-700 border-none rounded-lg py-1.5 pl-3 pr-8 text-dark-600 dark:text-dark-300 font-medium focus:ring-1 focus:ring-primary-500 cursor-pointer">
+                                <option value="week">7 Hari Terakhir</option>
+                                <option value="month">Bulan Ini</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="relative h-80 w-full">
                         <canvas ref="salesChart"></canvas>
                     </div>
                 </div>
                 
                 <!-- Top Products -->
-                <div class="card p-5">
-                    <h3 class="text-lg font-semibold text-dark-900 dark:text-white mb-4">Produk Terlaris Hari Ini</h3>
-                    <div v-if="topProducts.length === 0" class="text-center py-8 text-dark-400">
-                        Belum ada transaksi hari ini
+                <div class="card p-6">
+                    <h3 class="text-lg font-bold text-dark-900 dark:text-white mb-6">Produk Terlaris</h3>
+                    <div v-if="topProducts.length === 0" class="text-center py-12 text-dark-400 flex flex-col items-center">
+                        <ArchiveBoxIcon class="w-12 h-12 mb-3 text-dark-300 dark:text-dark-600" />
+                        <p>Belum ada transaksi hari ini</p>
                     </div>
-                    <div v-else class="space-y-3">
+                    <div v-else class="space-y-4">
                         <div 
                             v-for="(product, index) in topProducts" 
                             :key="product.id"
-                            class="flex items-center gap-3"
+                            class="flex items-center gap-4 group p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-700/30 transition-colors"
                         >
-                            <span class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-medium">
+                            <span class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-dark-700 text-dark-600 dark:text-dark-300 text-sm font-bold flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 dark:group-hover:bg-primary-900/30 dark:group-hover:text-primary-400 transition-colors">
                                 {{ index + 1 }}
                             </span>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-dark-900 dark:text-white truncate">
+                                <p class="text-sm font-semibold text-dark-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                     {{ product.name }}
                                 </p>
-                                <p class="text-xs text-dark-500 dark:text-dark-400">
-                                    {{ product.sold }} terjual
+                                <p class="text-xs text-dark-500 dark:text-dark-400 font-medium">
+                                    {{ product.sold }} item terjual
                                 </p>
                             </div>
-                            <span class="text-sm font-semibold text-dark-900 dark:text-white">
+                            <span class="text-sm font-bold text-dark-900 dark:text-white">
                                 {{ formatCurrency(product.revenue) }}
                             </span>
                         </div>
@@ -73,35 +83,37 @@
             </div>
             
             <!-- Recent Transactions -->
-            <div class="card p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-dark-900 dark:text-white">Transaksi Terbaru</h3>
-                    <router-link to="/transactions" class="text-sm text-primary-500 hover:text-primary-600">
+            <div class="card overflow-hidden">
+                <div class="p-6 border-b border-dark-100 dark:border-dark-700/60 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-dark-900 dark:text-white">Transaksi Terbaru</h3>
+                    <router-link to="/transactions" class="text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
                         Lihat Semua
                     </router-link>
                 </div>
-                <div v-if="recentTransactions.length === 0" class="text-center py-8 text-dark-400">
+                
+                <div v-if="recentTransactions.length === 0" class="text-center py-12 text-dark-400">
                     Belum ada transaksi
                 </div>
-                <div v-else class="table-container">
+                
+                <div v-else class="overflow-x-auto">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Invoice</th>
+                                <th class="pl-6">Invoice</th>
                                 <th>Waktu</th>
                                 <th>Item</th>
-                                <th>Total</th>
-                                <th>Status</th>
+                                <th class="text-right">Total</th>
+                                <th class="pr-6 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="tx in recentTransactions" :key="tx.id">
-                                <td class="font-medium">{{ tx.invoice }}</td>
-                                <td>{{ tx.time }}</td>
-                                <td>{{ tx.items }} item</td>
-                                <td class="font-semibold">{{ formatCurrency(tx.total) }}</td>
-                                <td>
-                                    <span :class="['badge', tx.status === 'paid' ? 'badge-success' : 'badge-warning']">
+                                <td class="pl-6 font-medium text-dark-900 dark:text-white">{{ tx.invoice }}</td>
+                                <td class="text-dark-500 dark:text-dark-400">{{ tx.time }}</td>
+                                <td class="text-dark-500 dark:text-dark-400">{{ tx.items }} item</td>
+                                <td class="font-bold text-dark-900 dark:text-white text-right">{{ formatCurrency(tx.total) }}</td>
+                                <td class="pr-6 text-center">
+                                    <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400']">
                                         {{ tx.status === 'paid' ? 'Lunas' : 'Pending' }}
                                     </span>
                                 </td>
@@ -121,7 +133,9 @@ import {
     CurrencyDollarIcon,
     ShoppingCartIcon,
     CubeIcon,
-    ArchiveBoxIcon
+    ArchiveBoxIcon,
+    ArrowUpIcon,
+    ArrowDownIcon
 } from '@heroicons/vue/24/outline';
 
 Chart.register(...registerables);
@@ -140,7 +154,8 @@ const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
-        minimumFractionDigits: 0
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     }).format(value || 0);
 };
 
@@ -154,40 +169,39 @@ const fetchDashboardData = async () => {
         // Update stats from API
         stats.value = [
             { 
-                label: 'Total Penjualan Hari Ini', 
+                label: 'Penjualan', 
                 value: formatCurrency(data.stats?.total_sales || 0), 
                 change: data.stats?.sales_change || 0,
                 icon: CurrencyDollarIcon,
-                bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
+                bgColor: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400',
                 iconColor: 'text-emerald-600 dark:text-emerald-400'
             },
             { 
-                label: 'Transaksi Hari Ini', 
+                label: 'Transaksi', 
                 value: String(data.stats?.total_transactions || 0), 
                 change: data.stats?.tx_change || 0,
                 icon: ShoppingCartIcon,
-                bgColor: 'bg-primary-100 dark:bg-primary-900/30',
+                bgColor: 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400',
                 iconColor: 'text-primary-600 dark:text-primary-400'
             },
             { 
-                label: 'Total Produk', 
+                label: 'Produk', 
                 value: String(data.stats?.total_products || 0), 
                 change: 0,
                 icon: CubeIcon,
-                bgColor: 'bg-secondary-100 dark:bg-secondary-900/30',
-                iconColor: 'text-secondary-600 dark:text-secondary-400'
+                bgColor: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
+                iconColor: 'text-blue-600 dark:text-blue-400'
             },
             { 
-                label: 'Stok Menipis', 
+                label: 'Stok Kritis', 
                 value: String(data.stats?.low_stock || 0), 
                 change: 0,
                 icon: ArchiveBoxIcon,
-                bgColor: 'bg-amber-100 dark:bg-amber-900/30',
+                bgColor: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400',
                 iconColor: 'text-amber-600 dark:text-amber-400'
             }
         ];
         
-        // Update top products
         topProducts.value = (data.top_products || []).map(p => ({
             id: p.id,
             name: p.name,
@@ -195,7 +209,6 @@ const fetchDashboardData = async () => {
             revenue: p.revenue
         }));
         
-        // Update recent transactions
         recentTransactions.value = (data.recent_transactions || []).map(tx => ({
             id: tx.id,
             invoice: tx.invoice,
@@ -205,18 +218,17 @@ const fetchDashboardData = async () => {
             status: tx.status
         }));
         
-        // Fetch chart data from reports
         await fetchChartData();
         
     } catch (e) {
         console.error('Error fetching dashboard:', e);
         error.value = 'Gagal memuat data dashboard. Silakan refresh halaman.';
-        // Set empty data
+        // Set empty data as fallback
         stats.value = [
-            { label: 'Total Penjualan Hari Ini', value: 'Rp 0', change: 0, icon: CurrencyDollarIcon, bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', iconColor: 'text-emerald-600 dark:text-emerald-400' },
-            { label: 'Transaksi Hari Ini', value: '0', change: 0, icon: ShoppingCartIcon, bgColor: 'bg-primary-100 dark:bg-primary-900/30', iconColor: 'text-primary-600 dark:text-primary-400' },
-            { label: 'Total Produk', value: '0', change: 0, icon: CubeIcon, bgColor: 'bg-secondary-100 dark:bg-secondary-900/30', iconColor: 'text-secondary-600 dark:text-secondary-400' },
-            { label: 'Stok Menipis', value: '0', change: 0, icon: ArchiveBoxIcon, bgColor: 'bg-amber-100 dark:bg-amber-900/30', iconColor: 'text-amber-600 dark:text-amber-400' }
+            { label: 'Penjualan', value: 'Rp 0', change: 0, icon: CurrencyDollarIcon, bgColor: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+            { label: 'Transaksi', value: '0', change: 0, icon: ShoppingCartIcon, bgColor: 'bg-primary-50', iconColor: 'text-primary-600' },
+            { label: 'Produk', value: '0', change: 0, icon: CubeIcon, bgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+            { label: 'Stok Kritis', value: '0', change: 0, icon: ArchiveBoxIcon, bgColor: 'bg-amber-50', iconColor: 'text-amber-600' }
         ];
     } finally {
         loading.value = false;
@@ -240,6 +252,12 @@ const renderChart = () => {
     }
     
     if (salesChart.value) {
+        // Create gradient
+        const ctx = salesChart.value.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(79, 70, 229, 0.2)'); // Primary-600 with opacity
+        gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
+        
         chartInstance = new Chart(salesChart.value, {
             type: 'line',
             data: {
@@ -247,8 +265,14 @@ const renderChart = () => {
                 datasets: [{
                     label: 'Penjualan',
                     data: chartData.value.values,
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: '#4f46e5', // Primary-600
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#4f46e5',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true,
                     tension: 0.4
                 }]
@@ -257,23 +281,58 @@ const renderChart = () => {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000).toFixed(1) + 'M';
-                                } else if (value >= 1000) {
-                                    return 'Rp ' + (value / 1000).toFixed(0) + 'K';
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#111827', // Gray-900
+                        titleColor: '#f9fafb',
+                        bodyColor: '#f9fafb',
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
                                 }
-                                return 'Rp ' + value;
+                                if (context.parsed.y !== null) {
+                                    label += formatCurrency(context.parsed.y);
+                                }
+                                return label;
                             }
                         }
                     }
-                }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#6b7280', // Gray-500
+                            font: { size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb', // Gray-200
+                            borderDash: [5, 5],
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: { size: 11 },
+                            callback: (value) => {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'jt';
+                                else if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                return value;
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
             }
         });
     }
