@@ -1,3 +1,6 @@
-- [ ] Guide user to check Vercel Function Logs for specific PHP error <!-- id: 0 -->
-- [ ] Verify Vercel Environment Variables (APP_KEY, Database Config) <!-- id: 1 -->
-- [ ] Check for common Vercel/Laravel issues (storage permissions, cache paths) <!-- id: 2 -->
+- [x] Configure Vercel runtime to php@0.7.0 <!-- id: 0 -->
+- [x] Fix output directory issue <!-- id: 1 -->
+- [x] Enable APP_DEBUG for detailed errors <!-- id: 2 -->
+- [x] Patch api/index.php for env var injection <!-- id: 3 -->
+- [/] Verify deployment success <!-- id: 4 -->
+- [x] Fix MissingAppKeyException by adding APP_KEY to vercel.json <!-- id: 5 -->
