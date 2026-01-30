@@ -23,7 +23,7 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
         },
     },
-    base: '/kasirku/public/build/',
+    base: process.env.VERCEL ? '/' : '/kasirku/public/build/',
     server: {
         host: 'localhost',
         port: 5173,

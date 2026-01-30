@@ -4,3 +4,4 @@
 - [x] Patch api/index.php for env var injection <!-- id: 3 -->
 - [/] Verify deployment success <!-- id: 4 -->
 - [x] Fix MissingAppKeyException by adding APP_KEY to vercel.json <!-- id: 5 -->
+- [x] Fix Blank Page by correctly configuring Vite base path and Blade assets <!-- id: 6 -->

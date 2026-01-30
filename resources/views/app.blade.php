@@ -9,12 +9,12 @@
     <meta name="description" content="Aplikasi kasir modern untuk toko ritel. Mudah digunakan, cepat, dan efisien.">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/kasirku/public/favicon.png">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
     <!-- PWA -->
-    <link rel="manifest" href="/kasirku/public/manifest.json">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#3a4d8c">
-    <link rel="apple-touch-icon" href="/kasirku/public/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
