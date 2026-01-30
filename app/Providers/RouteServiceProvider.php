@@ -29,8 +29,12 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // In production (Vercel), don't add api prefix since Vercel handles it via routing
+            // In local development (XAMPP), add api prefix for standard Laravel routing
+            $apiPrefix = config('app.env') === 'production' ? '' : 'api';
+
             Route::middleware('api')
-                ->prefix('api')
+                ->prefix($apiPrefix)
                 ->group(base_path('routes/api.php'));
 
             Route::middleware('web')
@@ -38,3 +42,4 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 }
+

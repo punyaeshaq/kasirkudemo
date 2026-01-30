@@ -4,8 +4,10 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.withCredentials = true;
 // Dynamic API base URL: production (Vercel) vs local (XAMPP)
+// In Vercel, routes are registered without /api prefix
+// In local XAMPP, routes have /api prefix under /kasirku/public
 const isVercel = window.location.hostname.includes('vercel.app');
-window.axios.defaults.baseURL = isVercel ? '/api' : '/kasirku/public/api';
+window.axios.defaults.baseURL = isVercel ? '/' : '/kasirku/public/api';
 window.axios.defaults.timeout = 10000; // 10 seconds timeout
 
 // Add auth token to requests (gunakan sessionStorage untuk auto-logout saat tab/browser ditutup)

@@ -30,45 +30,8 @@ $envVars = [
     'FILESYSTEM_DISK',
 ];
 
-// VERCEL PATCH: URI correction for API requests
-// Vercel strips the /api prefix. We detect API routes by their path patterns
-// and restore the prefix so Laravel's RouteServiceProvider can match them.
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
-$path = parse_url($uri, PHP_URL_PATH) ?? '/';
-
-// List of known API route prefixes (from routes/api.php)
-$apiPrefixes = [
-    '/auth/',
-    '/activation/',
-    '/setup/',
-    '/dashboard',
-    '/categories',
-    '/products',
-    '/transactions',
-    '/reports/',
-    '/settings',
-    '/customers',
-    '/debts',
-    '/discounts',
-    '/users',
-    '/backup/',
-    '/activations',
-    '/print-receipt/',
-];
-
-// Check if path matches any API route pattern
-$isApiRoute = false;
-foreach ($apiPrefixes as $prefix) {
-    if (str_starts_with($path, $prefix)) {
-        $isApiRoute = true;
-        break;
-    }
-}
-
-// If it's an API route and doesn't already have /api prefix, add it
-if ($isApiRoute && !str_starts_with($path, '/api')) {
-    $_SERVER['REQUEST_URI'] = '/api' . $uri;
-}
+// Note: API prefix handling is now done in RouteServiceProvider
+// In production (Vercel), routes are registered without /api prefix
 
 foreach ($envVars as $var) {
     if (isset($_SERVER[$var]) && !empty($_SERVER[$var])) {
