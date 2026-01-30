@@ -13,10 +13,29 @@ class SetupController extends Controller
 
     public function __construct()
     {
-        // Ensure backup directory exists
-        if (!Storage::exists($this->backupPath)) {
-            Storage::makeDirectory($this->backupPath);
+        // In production (Vercel), use /tmp which is writable
+        // In local development, use storage path
+        if (config('app.env') !== 'production') {
+            // Ensure backup directory exists (only for local)
+            if (!Storage::exists($this->backupPath)) {
+                Storage::makeDirectory($this->backupPath);
+            }
         }
+    }
+
+    /**
+     * Get the backup directory path (writable)
+     */
+    protected function getBackupDirectory(): string
+    {
+        if (config('app.env') === 'production') {
+            $tmpPath = '/tmp/backups';
+            if (!is_dir($tmpPath)) {
+                mkdir($tmpPath, 0755, true);
+            }
+            return $tmpPath;
+        }
+        return storage_path('app/' . $this->backupPath);
     }
 
     /**
@@ -127,35 +146,46 @@ class SetupController extends Controller
         }
 
         try {
+            // Get the appropriate backup directory (uses /tmp in production)
+            $backupDir = $this->getBackupDirectory();
+
             // Save uploaded file
             $filename = 'setup_restore_' . date('Y-m-d_H-i-s') . '.sql';
-            $filepath = storage_path('app/' . $this->backupPath . '/' . $filename);
-            $file->move(storage_path('app/' . $this->backupPath), $filename);
+            $filepath = $backupDir . '/' . $filename;
+            $file->move($backupDir, $filename);
 
-            $database = config('database.connections.mysql.database');
-            $username = config('database.connections.mysql.username');
-            $password = config('database.connections.mysql.password');
-            $host = config('database.connections.mysql.host');
-            $port = config('database.connections.mysql.port', 3306);
+            // Get database connection settings
+            $connection = config('database.default');
 
-            // Try using mysql command
-            $command = sprintf(
-                'mysql --user=%s --password=%s --host=%s --port=%s %s < %s 2>&1',
-                escapeshellarg($username),
-                escapeshellarg($password),
-                escapeshellarg($host),
-                escapeshellarg($port),
-                escapeshellarg($database),
-                escapeshellarg($filepath)
-            );
+            if ($connection === 'pgsql') {
+                // PostgreSQL (Supabase) - use manual PHP restore
+                $this->restoreManualPgsql($filepath);
+            } else {
+                // MySQL - try command line first
+                $database = config('database.connections.mysql.database');
+                $username = config('database.connections.mysql.username');
+                $password = config('database.connections.mysql.password');
+                $host = config('database.connections.mysql.host');
+                $port = config('database.connections.mysql.port', 3306);
 
-            $output = [];
-            $returnVar = 0;
-            exec($command, $output, $returnVar);
+                $command = sprintf(
+                    'mysql --user=%s --password=%s --host=%s --port=%s %s < %s 2>&1',
+                    escapeshellarg($username),
+                    escapeshellarg($password),
+                    escapeshellarg($host),
+                    escapeshellarg($port),
+                    escapeshellarg($database),
+                    escapeshellarg($filepath)
+                );
 
-            if ($returnVar !== 0) {
-                // Fallback: Manual PHP restore
-                $this->restoreManual($filepath);
+                $output = [];
+                $returnVar = 0;
+                exec($command, $output, $returnVar);
+
+                if ($returnVar !== 0) {
+                    // Fallback: Manual PHP restore
+                    $this->restoreManual($filepath);
+                }
             }
 
             // Mark setup as complete after restore
@@ -178,7 +208,7 @@ class SetupController extends Controller
     }
 
     /**
-     * Manual PHP restore (fallback)
+     * Manual PHP restore (fallback for MySQL)
      */
     protected function restoreManual($filepath)
     {
@@ -197,6 +227,45 @@ class SetupController extends Controller
         }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    /**
+     * Manual PHP restore for PostgreSQL (Supabase)
+     */
+    protected function restoreManualPgsql($filepath)
+    {
+        $sql = file_get_contents($filepath);
+
+        // Remove comments 
+        $sql = preg_replace('/--.*$/m', '', $sql);
+
+        // Remove MySQL-specific syntax that PostgreSQL doesn't understand
+        $sql = preg_replace('/`([^`]+)`/', '"$1"', $sql); // Convert backticks to double quotes
+        $sql = preg_replace('/ENGINE\s*=\s*\w+/i', '', $sql); // Remove ENGINE=
+        $sql = preg_replace('/DEFAULT\s+CHARSET\s*=\s*\w+/i', '', $sql); // Remove DEFAULT CHARSET
+        $sql = preg_replace('/COLLATE\s*=?\s*\w+/i', '', $sql); // Remove COLLATE
+        $sql = preg_replace('/AUTO_INCREMENT\s*=\s*\d+/i', '', $sql); // Remove AUTO_INCREMENT=
+        $sql = str_replace('AUTO_INCREMENT', 'SERIAL', $sql); // Convert AUTO_INCREMENT to SERIAL
+        $sql = preg_replace('/UNSIGNED/i', '', $sql); // Remove UNSIGNED
+
+        $statements = array_filter(array_map('trim', explode(';', $sql)));
+
+        // Disable foreign key checks for PostgreSQL
+        DB::statement('SET session_replication_role = replica');
+
+        foreach ($statements as $statement) {
+            if (!empty($statement)) {
+                try {
+                    DB::unprepared($statement);
+                } catch (\Exception $e) {
+                    // Log error but continue with other statements
+                    \Log::warning('SQL restore statement failed: ' . $e->getMessage());
+                }
+            }
+        }
+
+        // Re-enable foreign key checks
+        DB::statement('SET session_replication_role = DEFAULT');
     }
 
     /**
