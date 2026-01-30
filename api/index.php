@@ -30,19 +30,44 @@ $envVars = [
     'FILESYSTEM_DISK',
 ];
 
-
 // VERCEL PATCH: URI correction for API requests
-// Vercel sometimes strips the prefix or we need to enforce it for AJAX requests
-// so they match the Laravel API routes (which wait for /api prefix)
-if (
-    isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' &&
-    isset($_SERVER['REQUEST_URI']) &&
-    !str_starts_with($_SERVER['REQUEST_URI'], '/api') &&
-    !str_starts_with($_SERVER['REQUEST_URI'], '/sanctum')
-) {
+// Vercel strips the /api prefix. We detect API routes by their path patterns
+// and restore the prefix so Laravel's RouteServiceProvider can match them.
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$path = parse_url($uri, PHP_URL_PATH) ?? '/';
 
-    $_SERVER['REQUEST_URI'] = '/api' . $_SERVER['REQUEST_URI'];
+// List of known API route prefixes (from routes/api.php)
+$apiPrefixes = [
+    '/auth/',
+    '/activation/',
+    '/setup/',
+    '/dashboard',
+    '/categories',
+    '/products',
+    '/transactions',
+    '/reports/',
+    '/settings',
+    '/customers',
+    '/debts',
+    '/discounts',
+    '/users',
+    '/backup/',
+    '/activations',
+    '/print-receipt/',
+];
+
+// Check if path matches any API route pattern
+$isApiRoute = false;
+foreach ($apiPrefixes as $prefix) {
+    if (str_starts_with($path, $prefix)) {
+        $isApiRoute = true;
+        break;
+    }
+}
+
+// If it's an API route and doesn't already have /api prefix, add it
+if ($isApiRoute && !str_starts_with($path, '/api')) {
+    $_SERVER['REQUEST_URI'] = '/api' . $uri;
 }
 
 foreach ($envVars as $var) {
