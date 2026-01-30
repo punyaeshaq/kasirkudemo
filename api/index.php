@@ -30,6 +30,21 @@ $envVars = [
     'FILESYSTEM_DISK',
 ];
 
+
+// VERCEL PATCH: URI correction for API requests
+// Vercel sometimes strips the prefix or we need to enforce it for AJAX requests
+// so they match the Laravel API routes (which wait for /api prefix)
+if (
+    isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' &&
+    isset($_SERVER['REQUEST_URI']) &&
+    !str_starts_with($_SERVER['REQUEST_URI'], '/api') &&
+    !str_starts_with($_SERVER['REQUEST_URI'], '/sanctum')
+) {
+
+    $_SERVER['REQUEST_URI'] = '/api' . $_SERVER['REQUEST_URI'];
+}
+
 foreach ($envVars as $var) {
     if (isset($_SERVER[$var]) && !empty($_SERVER[$var])) {
         putenv("$var=" . $_SERVER[$var]);
